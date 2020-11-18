@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tzw.mapper.EcifClientMapper">
+
+    <resultMap id="ecifClient" type="java.util.Map">
+        <id property="client_id" column="client_id"></id>
+        <result property="client_name" column="client_name"></result>
+        <result property="client_name_en" column="client_name_en"></result>
+    </resultMap>
+
+    <select id="selectAllList" resultMap="ecifClient">
+      select * from EcifClient
+    </select>
+
+</mapper>

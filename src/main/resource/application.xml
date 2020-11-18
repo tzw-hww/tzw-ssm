@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+       xmlns:tx="http://www.springframework.org/schema/tx" xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:cache="http://www.springframework.org/schema/cache" xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/jdbc
+       http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
+       http://www.springframework.org/schema/tx
+       http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+
+
+
+    <context:component-scan base-package="com.tzw"></context:component-scan>
+
+    <!--数据源-->
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="oracle.jdbc.driver.OracleDriver"></property>
+        <property name="url" value="jdbc:oracle:thin:@localhost:1521:orcl"></property>
+        <property name="username" value="tzw"></property>
+        <property name="password" value="tzw"></property>
+    </bean>
+
+
+    <!--原生jdbc模板-->
+    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+
+
+    <!--事务管理器-->
+    <bean id="transactionManager"  class = "org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+
+
+    <!--事务管理模板，一般用于简化编程式事务-->
+    <bean id="transactionTemplate" class ="org.springframework.transaction.support.TransactionTemplate">
+        <property name="transactionManager" ref="transactionManager"/>
+    </bean>
+
+
+    <!--方式1： 基于TransactionProxyFactoryBean实现，底层是通过AOP的方式实现的-->
+    <bean  id="transactionProxy"  class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <!--注入事务管理器-->
+        <property name="transactionManager" ref="transactionManager"></property>
+        <!--配置目标对象-->
+        <property name="target" ref="coreService"></property>
+        
+        <!--注入事务的属性-->
+        <property name="transactionAttributes">
+            <props>
+                <prop key="submit*">PROPAGATION_REQUIRED,+java.lang.ArithmeticException</prop>
+
+                <!-- 格式：
+                    <prop key="方法">参数</prop>
+					* PROPAGATION	:事务的传播行为
+					* ISOLATION		:事务的隔离级别
+					* readOnly		：只读.(不可以进行修改、插入、删除)
+					* -Exception	：发生哪些异常回滚事务
+					* +Exception	：发生哪些异常事务不回滚
+					<prop key="insert*">PROPAGATION_REQUIRED</prop>
+					<prop key="*">PROPAGATION_REQUIRED,readOnly</prop>
+				-->
+                <!--<prop key="transfer">PROPAGATION_REQUIRED</prop> -->
+
+            </props>
+        </property>
+    </bean>
+
+    <!--方式2： 通过aspectj配置事务管理器-->
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="updateClient11111" propagation="REQUIRED"/>
+        </tx:attributes>
+    </tx:advice>
+    <aop:config>
+        <aop:pointcut id="pointcut" expression="execution(* com.tzw.service.TzwService.*(..))"></aop:pointcut>
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="pointcut" />
+    </aop:config>
+
+
+    <!--方式3： 开启事务注解-->
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+
+
+    <!--以上是spring的事务管理器，与下面的 数据库框架没有任何关系-->
+
+    <!--以下是 mybatis 框架的配置，一共有两步，1，sqlSessionFactory    2. 自动扫描对象映射关系 org.mybatis 和 tk.mybatis-->
+
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"></property>
+        <property name="configLocation" value="classpath:mybatis.xml"></property>
+        <property name="mapperLocations">
+            <array>
+                <value>classpath*:mapper/clientMapper.xml</value>
+            </array>
+        </property>
+    </bean>
+
+    <!--自动扫描对象关系映射 -->
+    <!--<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        &lt;!&ndash;指定会话工厂，如果当前上下文中只定义了一个则该属性可省去 &ndash;&gt;
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"></property>
+        &lt;!&ndash; 指定要自动扫描接口的基础包，实现接口 &ndash;&gt;
+        <property name="basePackage" value="com.tzw.mapper"></property>
+    </bean>-->
+
+    <bean class="tk.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!--指定会话工厂，如果当前上下文中只定义了一个则该属性可省去 -->
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"></property>
+        <!-- 指定要自动扫描接口的基础包，实现接口 -->
+        <property name="basePackage" value="com.tzw.mapper"></property>
+
+        <property name="properties">
+            <value>mappers=tk.mybatis.mapper.common.Mapper</value>
+        </property>
+    </bean>
+
+
+
+
+    <!--spring 对缓存的支持  这里介绍了两种缓存管理器，一种是SimpleCacheManager,另一个是ConcurrentMapCacheManager-->
+    <bean id="cacheManager" class = "org.springframework.cache.support.SimpleCacheManager">
+        <property name="caches">
+            <set>
+                <bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean">
+                    <property name="name" value="tzwCache"></property>
+                 </bean>
+                <bean class="org.springframework.cache.concurrent.ConcurrentMapCache">
+                    <constructor-arg value="tzwCache1"></constructor-arg>
+                </bean>
+            </set>
+        </property>
+    </bean>
+
+    <bean id="cacheManager1" class = "org.springframework.cache.concurrent.ConcurrentMapCacheManager">
+        <property name="cacheNames" value="tzwCache2"/>
+    </bean>
+
+
+    <!--CompositeCacheManager 可以用多个缓存管理器来配置，查找时CompositeCacheManager管理器换遍历所有的缓存管理
+    器去查询缓存条目-->
+    <bean id = "comCacheManager" class="org.springframework.cache.support.CompositeCacheManager">
+        <property name="cacheManagers">
+            <list>
+                <ref bean="cacheManager"></ref>
+                <ref bean="cacheManager1"></ref>
+            </list>
+        </property>
+    </bean>
+
+    <!--开启缓存注解,这里如果只有一个缓存管理器，可以省去cache-manager="cacheManager"-->
+    <cache:annotation-driven  cache-manager="comCacheManager"/>
+
+
+
+
+
+    <!--redis-->
+    <context:property-placeholder location="classpath:redis.properties"/>
+    <!-- redis数据源 -->
+    <bean id="poolConfig1" class="redis.clients.jedis.JedisPoolConfig">
+        <property name="maxIdle" value="${redis.maxIdle}"></property>
+        <property name="maxTotal" value="${redis.maxActive}"></property>
+        <property name="maxWaitMillis" value="${redis.maxWait}"></property>
+        <property name="testOnBorrow" value="${redis.testOnBorrow}"></property>
+    </bean>
+
+    <!-- Jedis ConnectionFactory连接配置 -->
+    <bean id="jedisConnectionFactory" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory">
+        <property name="poolConfig" ref="poolConfig1"></property>
+        <!--<property name="password" value="${redis.pass}"></property>-->
+        <property name="hostName" value="${redis.host}"></property>
+        <property name="port" value="${redis.port}"></property>
+        <!--<constructor-arg name="sentinelConfig" ref="sentinelConfiguration"></constructor-arg>-->
+        <!-- <constructor-arg name="clusterConfig" ref="sentinelConfiguration"></constructor-arg>-->
+    </bean>
+
+
+    <!-- redis模板类，提供了对缓存的增删改查 -->
+    <bean id="redisTemplate" class="org.springframework.data.redis.core.StringRedisTemplate">
+        <property name="connectionFactory" ref="jedisConnectionFactory" />
+        <property name="keySerializer">
+            <bean class="org.springframework.data.redis.serializer.StringRedisSerializer" />
+        </property>
+        <!--<property name="valueSerializer">
+            <bean class="org.springframework.data.redis.serializer.JdkSerializationRedisSerializer" />
+        </property>-->
+        <property name="valueSerializer" >
+            <bean class="org.springframework.data.redis.serializer.StringRedisSerializer"/>
+        </property>
+
+    </bean>
+
+    <!--redisCacheManager-->
+    <bean id="cacheManage5" class="org.springframework.data.redis.cache.RedisCacheManager">
+        <constructor-arg  name="redisOperations" ref="redisTemplate"></constructor-arg>
+        <property name="cacheNames">
+            <set>
+                <value>cacheone</value>
+                <value>cacheone1</value>
+            </set>
+        </property>
+        <!--缓存名称作为前缀-->
+        <property name="usePrefix" value="true"></property>
+        <property name="defaultExpiration" value="300000"/>
+        <property name="transactionAware" value = "true"/>
+    </bean>
+
+    <!--redis集群-->
+    <!-- <bean id="sentinelConfiguration" class="org.springframework.data.redis.connection.RedisSentinelConfiguration">
+         <property name="master">
+             <bean class="org.springframework.data.redis.connection.RedisNode">
+                 &lt;!&ndash; 集群的名称 &ndash;&gt;
+                 &lt;!&ndash;<property name="name" value="${redis.master}"></property>&ndash;&gt;
+                 <constructor-arg name="host" value="${sentinel1.ip}"></constructor-arg>
+                 <constructor-arg name="port" value="${sentinel1.port}"></constructor-arg>
+             </bean>
+         </property>
+         <property name="sentinels">
+             <set>
+                 <bean id="redisNode" class="org.springframework.data.redis.connection.RedisNode">
+                     <constructor-arg name="host" value="${sentinel1.ip}"></constructor-arg>
+                     <constructor-arg name="port" value="${sentinel1.port}"></constructor-arg>
+                 </bean>
+                 &lt;!&ndash;<bean class="org.springframework.data.redis.connection.RedisNode">
+                     <constructor-arg name="host" value="${sentinel2.ip}"></constructor-arg>
+                     <constructor-arg name="port" value="${sentinel2.port}"></constructor-arg>
+                 </bean>
+                 <bean class="org.springframework.data.redis.connection.RedisNode">
+                     <constructor-arg name="host" value="${sentinel3.ip}"></constructor-arg>
+                     <constructor-arg name="port" value="${sentinel3.port}"></constructor-arg>
+                 </bean>&ndash;&gt;
+             </set>
+         </property>
+     </bean>-->
+
+</beans>

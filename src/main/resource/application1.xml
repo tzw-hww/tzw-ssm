@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd">
+
+
+
+
+    <context:component-scan base-package="com.tzw"></context:component-scan>
+
+
+    <!--<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+            <property name="driverClassName" value="com.mysql.cj.jdbc.Driver"></property>
+            <property name="url" value="dbc:mysql://localhost:3306/ecif?useUnicode=true&amp;characterEncoding=utf8&amp;serverTimezone=GMT"></property>
+            <property name="username" value="root"></property>
+            <property name="password" value="521521Hww"></property>
+
+    </bean>-->
+
+    <!--数据源-->
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="oracle.jdbc.driver.OracleDriver"></property>
+        <property name="url" value="jdbc:oracle:thin:@localhost:1521:orcl"></property>
+        <property name="username" value="tzw"></property>
+        <property name="password" value="tzw"></property>
+    </bean>
+
+
+    <!--原生jdbc模板-->
+    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+
+
+    <!--spring 对hibernate的支持-->
+    <!--这里获取的虽然是LocalSessionFactoryBean，但是它实现了FactoryBean接口，在实例化的时候会
+    调用getObject 方法，所以返回的是SessionFactoty 实例-->
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"></property>
+
+        <!--<property name="hibernateProperties">
+            <props>
+                &lt;!&ndash; 数据库连接方言 &ndash;&gt;
+                <prop key="dialect">org.hibernate.dialect.SQLServerDialect</prop>
+                &lt;!&ndash; 在控制台输出SQL语句 &ndash;&gt;
+                <prop key="hibernate.show_sql">true</prop>
+                &lt;!&ndash; 格式化控制台输出的SQL语句 &ndash;&gt;
+                <prop key="hibernate.format_sql">true</prop>
+            </props>
+        </property>
+        <property name="mappingResources">
+            <list>
+                <value>com/zt/User.hbm.xml</value>
+            </list>
+        </property>
+        <property name="mappingDirectoryLocations">
+        <list>
+            &lt;!&ndash; spring容器会去该包及子包下搜索所有的映射文件 &ndash;&gt;
+            <value>classpath:com/tzw/entity/</value>
+        </list>
+        </property>-->
+</bean>
+
+
+
+    <!--事务管理器-->
+    <bean id="transactionManager"  class = "org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+
+
+    <bean id="transactionTemplate" class ="org.springframework.transaction.support.TransactionTemplate">
+        <property name="transactionManager" ref="transactionManager"/>
+
+    </bean>
+
+
+    <!--<jdbc:embedded-database id="dataSource_h2" type="H2">
+        &lt;!&ndash;一定要是先DDL，即数据库定义语言&ndash;&gt;
+        <jdbc:script location="classpath:sql/h2-schema.sql"/>
+        &lt;!&ndash;然后才是DML，数据库操作语言&ndash;&gt;
+        <jdbc:script location="classpath:sql/h2-data.sql" encoding="UTF-8"/>
+    </jdbc:embedded-database>
+-->
+
+
+
+
+
+</beans>
