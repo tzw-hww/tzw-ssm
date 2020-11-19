@@ -1,0 +1,14 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="tzw-ssm:war">
+    <output-path>$PROJECT_DIR$/target</output-path>
+    <properties id="maven-jee-properties">
+      <options>
+        <module>tzw-ssm</module>
+        <packaging>war</packaging>
+      </options>
+    </properties>
+    <root id="archive" name="tzw-ssm.war">
+      <element id="artifact" artifact-name="tzw-ssm:war exploded" />
+    </root>
+  </artifact>
+</component>
