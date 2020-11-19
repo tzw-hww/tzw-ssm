@@ -20,5 +20,27 @@ public class EcifClient {
 
     private String clientNameEn;
 
+    public String getClientId() {
+        return clientId;
+    }
 
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
+    }
+
+    public String getClientName() {
+        return clientName;
+    }
+
+    public void setClientName(String clientName) {
+        this.clientName = clientName;
+    }
+
+    public String getClientNameEn() {
+        return clientNameEn;
+    }
+
+    public void setClientNameEn(String clientNameEn) {
+        this.clientNameEn = clientNameEn;
+    }
 }
