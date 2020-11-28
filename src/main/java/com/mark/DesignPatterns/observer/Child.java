@@ -10,6 +10,12 @@ public class Child {
     {
         list.add(new MomObs());
         list.add(new DadObs());
+        list.add(new Observer() {
+            @Override
+            public void obsHand(ObsEvent e) {
+                System.out.println("pppppppppp");
+            }
+        });
     }
     public void wakeUp(ObsEvent e){
         for (Observer observer : list) {
