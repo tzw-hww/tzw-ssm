@@ -17,7 +17,6 @@ public class Main {
 //            System.out.println(iterator.next());
 //        }
 
-
         LinkList_ linkList_ = new LinkList_();
         for(int i= 0;i<15;i++){
             linkList_.add("s"+i);
@@ -28,6 +27,7 @@ public class Main {
         while (iterator.hasNext()){
             System.out.println(iterator.next());
         }
+
 
     }
 }
