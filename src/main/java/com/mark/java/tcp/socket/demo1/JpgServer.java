@@ -9,9 +9,9 @@ public class JpgServer {
 
         ServerSocket serverSocket = new ServerSocket(11111);
         Socket accept = serverSocket.accept();
-        //获取输入流，接收发送端消息
+        //获取输入流，接收发送端消息，从socket中取数据
         InputStream inputStream = accept.getInputStream();
-        //将接收到的数据写入输出流
+        //将接收到的数据写入输出流，当前程序输出到文件中
         FileOutputStream fileOutputStream = new FileOutputStream("pic.jpg");
         int temp = 0;
         while ((temp=inputStream.read())!=-1){

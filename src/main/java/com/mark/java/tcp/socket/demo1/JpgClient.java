@@ -6,9 +6,9 @@ import java.net.Socket;
 public class JpgClient {
     public static void main(String[] args) throws IOException {
         Socket client = new Socket("127.0.0.1",11111);
-        //创建图片文件输入流
+        //创建图片文件输入流,将图片读取到当前程序
         FileInputStream fileInputStream = new FileInputStream("img.jpg");
-        //获取输出流对象,并写入输出流
+        //获取输出流对象,并写入输出流，将图片信息从当前程序写入socket。
         OutputStream outputStream = client.getOutputStream();
         int temp = 0;
         while((temp=fileInputStream.read())!=-1){
