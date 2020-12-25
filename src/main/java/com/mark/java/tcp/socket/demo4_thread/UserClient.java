@@ -1,4 +1,4 @@
-package com.mark.java.tcp.socket.demo2;
+package com.mark.java.tcp.socket.demo4_thread;
 
 import java.io.*;
 import java.net.Socket;
