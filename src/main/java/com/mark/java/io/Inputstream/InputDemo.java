@@ -1,4 +1,4 @@
-package com.mark.java.io;
+package com.mark.java.io.Inputstream;
 
 import java.io.*;
 

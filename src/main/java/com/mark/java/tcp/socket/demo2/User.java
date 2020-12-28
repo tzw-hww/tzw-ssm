@@ -1,11 +1,10 @@
-package com.mark.java.tcp.socket.demo2.clientuser;
+package com.mark.java.tcp.socket.demo2;
 
 import java.io.Serializable;
 
 public class User implements Serializable{
 
 
-    private static final long serialVersionUID = 1L;
     public String userName;
     public String passWord;
     public int age;
