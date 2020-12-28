@@ -59,6 +59,8 @@
           <element id="library" level="project" name="Maven: org.apache.commons:commons-pool2:2.4.3" />
           <element id="library" level="project" name="Maven: org.projectlombok:lombok:1.18.12" />
           <element id="library" level="project" name="Maven: freemarker:freemarker:2.3.8" />
+          <element id="library" level="project" name="Maven: cglib:cglib:3.2.12" />
+          <element id="library" level="project" name="Maven: org.ow2.asm:asm:7.1" />
         </element>
       </element>
       <element id="directory" name="META-INF">
