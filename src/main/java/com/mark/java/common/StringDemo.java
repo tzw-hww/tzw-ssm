@@ -34,8 +34,21 @@ public class StringDemo {
         String d2 = "abcefg";
         String d3 = "abc"+"efg";
         String d4 = d+d1;
+        //对于d3，直接去池中找abcefg，所以d2和 d3 指向的时一致的，所以相等
         System.out.println(d2==d3);//true
+
+        //对于d4,是 d+d1,是引用变量的相加，是地址的相加，不是值得相加
+        //其实在内部会创建一个StringBuilder的对象
         System.out.println(d2==d4);//false
+        //相当于
+        StringBuilder stringBuilder = new StringBuilder().append(d).append(d1);
+        String s = stringBuilder.toString();
+        //而下面是StringBuilder的toString方法，就是new String（）创建了一个新对象。所以为false
+        //public String toString() {
+        //        // Create a copy, don't share the array
+        //        return new String(value, 0, count);
+        //    }
+
 
 
 
