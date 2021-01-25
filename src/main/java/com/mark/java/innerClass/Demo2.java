@@ -21,15 +21,16 @@ public class Demo2 {
 
             private String name;
 
-            public void show(){
+            public void show(int a){
                 System.out.println(this.name);
                 System.out.println(Demo2.this.name);
                 System.out.println(demo2.getName());
+                System.out.println(a);
             }
         }
         Demo2Inner demo2Inner = new Demo2Inner();
         demo2Inner.name = "bbbbb";
-        demo2Inner.show();
+        demo2Inner.show(3);
     }
 }
 
